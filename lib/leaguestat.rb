@@ -9,7 +9,11 @@ SETTINGS = YAML::load('lib/config.yml')
 
 
 
-@startOfWeek = Date.now.beginning_of_week #.advance(:days => -1)
+#DNW@startOfWeek = Date.parse(Time.now.to_s).beginning_of_week #.advance(:days => -1)
+t_now = Time.now
+@startOfWeek = t_now - (t_now.wday-1)*24*60*60 - t_now.hour*60*60 - t_now.min*60 - t_now.sec
+@startOfWeek = "#{@startOfWeek.year}-#{@startOfWeek.month}-#{@startOfWeek.day}" #'2013-2-2'
+
 @feedData = nil
 
 def cleanLeagueStat(str)
