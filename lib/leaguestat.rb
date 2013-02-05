@@ -2,17 +2,10 @@ require 'rubygems'
 require 'json'
 require 'net/http'
 
-require 'lib/config.rb'
-
 # Loads settings
-#SETTINGS = YAML::load('../config/config.yml')
+require 'lib/config.rb'
 SETTINGS = read_config('config/config.yml')
 
-puts SETTINGS.inspect
-# puts SETTINGS['league_code']
-
-
-#DNW@startOfWeek = Date.parse(Time.now.to_s).beginning_of_week #.advance(:days => -1)
 t_now = Time.now
 @startOfWeek = t_now - (t_now.wday-1)*24*60*60 - t_now.hour*60*60 - t_now.min*60 - t_now.sec
 @startOfWeek = "#{@startOfWeek.year}-#{@startOfWeek.month}-#{@startOfWeek.day}" #'2013-2-2'
@@ -83,14 +76,21 @@ def makeFixturesList
     v = @feedData[k]
     addFixtures(v) unless v.empty? || v["Num"].nil? || v["Num"]==0
   end
-  puts @feedData["fixtures"].inspect
+  puts "<h2>Fixtures</h2>"
+  @feedData["fixtures"].each do |f|
+    puts "<p>"
+    f.each do |k,v|
+      puts "<strong>#{k}</strong> #{v}"
+    end
+    puts "</p>"
+  end
+
 end
 
 def addFixtures(data)
   quantity = data['Num'].to_i
   
   (1..quantity).each do |i|
-    puts data["Game#{i}"].inspect
     game = data["Game#{i}"]
     @feedData["fixtures"] << {
       "Date" => game["Date"],
