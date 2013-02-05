@@ -1,2 +1,3 @@
-client_code: 'ahl'
-league_code: 'ahl'
+settings:
+  client_code: 'ahl'
+  league_code: 'ahl'

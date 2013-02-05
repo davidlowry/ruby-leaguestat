@@ -1,12 +1,15 @@
 require 'rubygems'
 require 'json'
 require 'net/http'
-require 'yaml'
+
+require 'lib/config.rb'
 
 # Loads settings
-SETTINGS = YAML::load('lib/config.yml')
+#SETTINGS = YAML::load('../config/config.yml')
+SETTINGS = read_config('config/config.yml')
 
-
+puts SETTINGS.inspect
+# puts SETTINGS['league_code']
 
 
 #DNW@startOfWeek = Date.parse(Time.now.to_s).beginning_of_week #.advance(:days => -1)
@@ -52,8 +55,8 @@ def cleanLeagueStat(str)
 end
 
 def getData(dd)
-  
-  feedDataURL = "http://cluster.leaguestat.com/lsconsole/json-week.php?client_code="+SETTINGS.client_code+"&league_code="+SETTINGS.league_code+"&type=gamelist&forcedate=" + dd
+
+  feedDataURL = "http://cluster.leaguestat.com/lsconsole/json-week.php?client_code="+SETTINGS['client_code']+"&league_code="+SETTINGS['league_code']+"&type=gamelist&forcedate=" + dd
   
   return @feedData unless @feedData.nil?
   
