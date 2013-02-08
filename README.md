@@ -10,20 +10,20 @@ Provides access to fixtureList, made up of fixtures, which expose date, home tea
 ## Purpose
 
 * to scrape accurate future fixture info + scrape accurate scoring data from an authoritive source
-* leaguestat provide a visible API which is not locked to a referal URL or with a complex api key
-* but its not documented so don't abuse it
+* leaguestat provide a visible API which is not locked to a referral URL or with a complex api key
+* you'll need a valid client code + league code; which can be gleaned from implementations, but its not documented so don't abuse it
 
 ## Sample
 
 Instantiate and get scores for this week
 	
 	require('lib/leaguestat.rb')
-	ls = LeagueStat.init
+	ls = LeagueStat.init(client_code, league_code)
 	puts ls.fixtureList.inspect
 
 Get scores for a particular week
 
-	ls = LeagueStat.init('2012-11-1')
+	ls = LeagueStat.init(client_code, league_code, '2012-11-1')
 	# or
 	ls.getScoresFor('2012-11-1')
 
@@ -32,9 +32,8 @@ Get scores for a particular week
 * base class in lib/leaguestat.rb
 * supporting classes in lib/lib.rb
 * instantiation and public fixture list 
-* basis yml settings extracted to config/config.yml + made safe for publishing
 * readme.md created
-
+* removed 
 
 ## TODO
 

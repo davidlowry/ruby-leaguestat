@@ -1,11 +1,10 @@
 require "#{File.dirname(__FILE__)}/lib.rb"
-require "#{File.dirname(__FILE__)}/config.rb"
 
 class LeagueStat
   
   attr_accessor :settings, :feedData, :fixtureList
   
-  def initialize(client, league, startOfWeek)
+  def initialize(client, league, startOfWeek=nil)
     
     self.settings = Hash.new
     self.settings[:client] = client

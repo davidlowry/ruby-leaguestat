@@ -61,13 +61,6 @@ class LeagueStatFetchData
   end
 end
 
-# class LeagueStatSettings
-#   # Loads settings
-#   def self.get
-#     read_config
-#   end
-# end
-
 class LeagueStatFeedCleanToJSON
   require 'json'
   def self.clean(str)
