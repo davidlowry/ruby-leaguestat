@@ -13,6 +13,19 @@ Provides access to fixtureList, made up of fixtures, which expose date, home tea
 * leaguestat provide a visible API which is not locked to a referral URL or with a complex api key
 * you'll need a valid client code + league code; which can be gleaned from implementations, but its not documented so don't abuse it
 
+## Install
+	
+	# some day
+	gem install leaguestat
+	
+	# and in your Rails 3 gemfile
+	gem.config 'leaguestat'
+	
+	# or on the commandline
+	$ irb
+	> require 'leaguestat'
+	
+
 ## Sample
 
 Instantiate and get scores for this week
@@ -33,7 +46,7 @@ Get scores for a particular week
 * supporting classes in lib/lib.rb
 * instantiation and public fixture list 
 * readme.md created
-* removed 
+* removed config file, requires it as a 
 
 ## TODO
 
