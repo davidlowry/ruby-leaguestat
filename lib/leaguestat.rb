@@ -54,7 +54,7 @@ class LeagueStatFetchData
 
   def self.fetch(client, league, dd)
     feedDataURL = "http://cluster.leaguestat.com/lsconsole/json-week.php?client_code="+client+"&league_code="+league+"&type=gamelist&forcedate=" + dd 
-    puts feedDataURL
+    # puts feedDataURL
     resp = Net::HTTP.get_response(URI.parse(feedDataURL))
     return resp.body
   end
@@ -94,12 +94,14 @@ class LeagueStatFeedCleanToJSON
     cleaning = cleaning.gsub(/http:/, 'REINSERTHTTPN')
     cleaning = cleaning.gsub(/https:/, 'REINSERTHTTPS')
     cleaning = cleaning.gsub(/::/, 'REINSERTWScontent')
-  
+    #switch the keys from : to ""=
     cleaning.gsub!(/([a-zA-Z]+):/, '"\1"=')
     cleaning = cleaning.gsub(/REINSERTWScontent/, '::')
     cleaning = cleaning.gsub(/REINSERTHTTPN/, 'http:')
     cleaning = cleaning.gsub(/REINSERTHTTPS/, 'https:')
+    #make it more like json
     cleaning = "{#{cleaning}}"
+    #remove last comma, as it will be isolated (from before the load(..) string)
     cleaning[cleaning.rindex(/,/)] = " "
     clean = cleaning
   
@@ -122,7 +124,7 @@ class LeagueStat
     leaguestat.settings = settings
     
     leaguestat.settings['startOfWeek'] = leaguestat.parseTime(startOfWeek) if !startOfWeek.nil?
-    puts leaguestat.settings.inspect
+    #puts leaguestat.settings.inspect
     leaguestat.feedData = leaguestat.getData
     leaguestat.fixtureList = leaguestat.makeFixturesList
     
@@ -168,8 +170,9 @@ class LeagueStat
   def getScoresFor(dd)
     #reset the feed
     self.feedData = nil
+    #reload the feed
     self.feedData = getData(dd)
+    #parse
     self.fixtureList = makeFixturesList
-    puts self.fixtureList.inspect
   end
 end
