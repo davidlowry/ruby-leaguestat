@@ -6,7 +6,8 @@ require 'lib/leaguestat.rb'
 # this is basic, and early days.
 
 # Purpose
-# - to scrape accurate future fixture info + scrape accurate scoring data from an authoritive source 
+# - to scrape accurate future fixture info + scrape accurate scoring data from an authoritive source
+# - leaguestat provide a visible API which is not locked to a referal URL or with a complex api key
 
 #instantiate and get scores for this week
 ls = LeagueStat.init('2013-4-5')
