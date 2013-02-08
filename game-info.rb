@@ -10,7 +10,7 @@ require 'lib/leaguestat.rb'
 # - leaguestat provide a visible API which is not locked to a referal URL or with a complex api key
 
 #instantiate and get scores for this week
-ls = LeagueStat.init('2013-4-5')
+ls = LeagueStat.new('elite', 'elite', '2013-4-5')
 puts ls.fixtureList.inspect
 # Get scores for a particular week
 # ls.getScoresFor('2012-11-1')

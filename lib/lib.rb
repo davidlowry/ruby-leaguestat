@@ -53,7 +53,7 @@ class LeagueStatFetchData
   require 'net/http'
 
   def self.fetch(settings)
-    client, league, dd = settings['client_code'], settings['league_code'], settings['startOfWeek']
+    client, league, dd = settings[:client], settings[:league], settings[:startOfWeek]
     feedDataURL = "http://cluster.leaguestat.com/lsconsole/json-week.php?client_code="+client+"&league_code="+league+"&type=gamelist&forcedate=" + dd 
     # puts feedDataURL
     resp = Net::HTTP.get_response(URI.parse(feedDataURL))
@@ -61,14 +61,12 @@ class LeagueStatFetchData
   end
 end
 
-class LeagueStatSettings
-  # Loads settings
-  require 'lib/config.rb'
-
-  def self.get
-    read_config
-  end
-end
+# class LeagueStatSettings
+#   # Loads settings
+#   def self.get
+#     read_config
+#   end
+# end
 
 class LeagueStatFeedCleanToJSON
   require 'json'

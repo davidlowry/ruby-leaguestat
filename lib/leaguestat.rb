@@ -1,24 +1,20 @@
-require 'lib/lib.rb'
+require "#{File.dirname(__FILE__)}/lib.rb"
+require "#{File.dirname(__FILE__)}/config.rb"
 
 class LeagueStat
   
   attr_accessor :settings, :feedData, :fixtureList
   
-  #
-  # init
-  #
-  
-  def self.init(startOfWeek = nil, settings = LeagueStatSettings.get)
+  def initialize(client, league, startOfWeek)
     
-    leaguestat = LeagueStat.new
-    leaguestat.settings = settings
-    leaguestat.settings['startOfWeek'] = leaguestat.parseTime(startOfWeek) if !startOfWeek.nil?
+    self.settings = Hash.new
+    self.settings[:client] = client
+    self.settings[:league] = league
+    self.settings[:startOfWeek] = parseTime(startOfWeek.nil? ? nil : startOfWeek)
     
     #puts leaguestat.settings.inspect
-    leaguestat.feedData = leaguestat.getData
-    leaguestat.fixtureList = leaguestat.makeFixturesList
-    
-    return leaguestat
+    self.feedData = getData
+    self.fixtureList = makeFixturesList
   end
   
   def parseTime(sow=nil)
@@ -36,7 +32,7 @@ class LeagueStat
     
     return feedData unless feedData.nil?
     
-    settings['startOfWeek'] = parseTime(overrideDate)
+    self.settings[:startOfWeek] = parseTime(overrideDate)
     
     data = LeagueStatFetchData.fetch(settings)
   
