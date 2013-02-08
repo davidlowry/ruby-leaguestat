@@ -1,10 +1,60 @@
 require 'rubygems'
 
+class LeagueStatFixtureList
+  attr_accessor :fixtures
+  
+  def generate(fd)
+    self.fixtures = []
+    (fd.keys - ['configStr', 'fixtures']).each do |k|
+      dateData = fd[k]
+      unless dateData.empty? || dateData["Num"].nil? || dateData["Num"]==0
+        self.fixtures += addFixturesForDate(dateData)
+      end
+    end
+    self.fixtures
+  end
+    
+  def addFixturesForDate(dateData)
+    quantity = dateData['Num'].to_i
+    
+    (1..quantity).map do |fixture_id|
+      
+      identifier = "Game#{fixture_id}"
+      game = dateData[identifier]
+      LeagueStatFixture.generate(
+        :date => game["Date"],
+        :home => game["HomeTeam"]["Name"],
+        :away => game["VisitingTeam"]["Name"],
+      :status => game["SmallStatus"],
+       :score => parseScoreInformation(game)
+      )
+    end
+
+  end
+
+  def parseScoreInformation(game)
+    # ?? return "-" if game["Pre-Game"] == "Pre-Game"
+    game["HomeTeam"]["Score"] + ":" + game["VisitingTeam"]["Score"]
+  end
+
+end
+
+class LeagueStatFixture
+  attr_accessor :date, :home, :away, :status, :score
+  def self.generate(gameData)
+    ls = LeagueStatFixture.new
+    gameData.each {|k,v| ls.send("#{k}=".to_sym,v)}
+    return ls
+  end
+end
+
+
 class LeagueStatFetchData
   require 'net/http'
 
   def self.fetch(client, league, dd)
     feedDataURL = "http://cluster.leaguestat.com/lsconsole/json-week.php?client_code="+client+"&league_code="+league+"&type=gamelist&forcedate=" + dd 
+    puts feedDataURL
     resp = Net::HTTP.get_response(URI.parse(feedDataURL))
     return resp.body
   end
@@ -59,7 +109,7 @@ end
 
 class LeagueStat
   
-  attr_accessor :settings, :feedData
+  attr_accessor :settings, :feedData, :fixtureList
   
   #
   # init
@@ -69,80 +119,57 @@ class LeagueStat
     
     leaguestat = LeagueStat.new
     
-    if startOfWeek.nil?
-      t_now = Time.now
-      startOfWeek = t_now - (t_now.wday-1)*24*60*60 - t_now.hour*60*60 - t_now.min*60 - t_now.sec
-    end
-    
     leaguestat.settings = settings
-    leaguestat.settings['startOfWeek'] = "#{startOfWeek.year}-#{startOfWeek.month}-#{startOfWeek.day-2}" #'2013-2-2'
-    leaguestat.feedData = nil
+    
+    leaguestat.settings['startOfWeek'] = leaguestat.parseTime(startOfWeek) if !startOfWeek.nil?
+    puts leaguestat.settings.inspect
+    leaguestat.feedData = leaguestat.getData
+    leaguestat.fixtureList = leaguestat.makeFixturesList
     
     return leaguestat
   end
+  
+  def parseTime(sow=nil)
+    t_now = sow.nil? ? Time.now : Time.parse(Date.parse(sow).to_s)
+    sow = t_now - (t_now.wday-1)*24*60*60 - t_now.hour*60*60 - t_now.min*60 - t_now.sec
+    "#{sow.year}-#{sow.month}-#{(sow.day)}" #'2013-2-2'
+  end
+  
   
   #
   # functions 
   #
   
-  def getData(dd)
+  def getData(overrideDate=nil)
     
     return feedData unless feedData.nil?
-  
-    data = LeagueStatFetchData.fetch(settings['client_code'], settings['league_code'], dd)
+    
+    settings['startOfWeek'] = parseTime(overrideDate)
+    
+    data = LeagueStatFetchData.fetch(settings['client_code'], settings['league_code'], settings['startOfWeek'])
   
     #puts clean
     feedData = LeagueStatFeedCleanToJSON.clean(data)
-  
-    if feedData.has_key? 'Error'
-      raise "web service error"
-    end
-  
-    makeFixturesList
-  
+    
+    # if feedData.has_key? 'Error'
+    #   raise "web service error"
+    # end
+
     return feedData
   end
 
-  def makeFixturesList
-    puts feedData.inspect
-    feedData['fixtures'] = Array.new
-  
-    (feedData.keys - ['configStr', 'fixtures']).each do |k|
-      v = feedData[k]
-      addFixtures(v) unless v.empty? || v["Num"].nil? || v["Num"]==0
-    end
-    puts "<h2>Fixtures</h2>"
-    feedData["fixtures"].each do |f|
-      puts "<p>"
-      f.each do |k,v|
-        puts "<strong>#{k}</strong> #{v}"
-      end
-      puts "</p>"
-    end
+  def makeFixturesList(fd=self.feedData)
+    
+    fl = LeagueStatFixtureList.new
+    fl.generate(fd)
 
   end
 
-  def addFixtures(data)
-    quantity = data['Num'].to_i
-  
-    (1..quantity).each do |i|
-      game = data["Game#{i}"]
-      feedData["fixtures"] << {
-        "Date" => game["Date"],
-        "Home" => game["HomeTeam"]["Name"],
-        "Away" => game["VisitingTeam"]["Name"],
-        "Status" => game["SmallStatus"],
-        "Score" => parseScoreInformation(game)
-      }
-    end
-  end
-
-  def parseScoreInformation(game)
-    # return "-" if game["Pre-Game"] == "Pre-Game"
-    game["HomeTeam"]["Score"] + ":" + game["VisitingTeam"]["Score"]
-  end
-
-  def getScores(dd=settings['startOfWeek'])
-    data = getData(dd)
+  def getScoresFor(dd)
+    #reset the feed
+    self.feedData = nil
+    self.feedData = getData(dd)
+    self.fixtureList = makeFixturesList
+    puts self.fixtureList.inspect
   end
 end
